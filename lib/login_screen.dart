@@ -1,10 +1,13 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter/services.dart';
 import 'bottom_nav_bar.dart';
 import 'theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -15,7 +18,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   late int mobileNumber;
-  final myController = TextEditingController();
+  TextEditingController myController = TextEditingController();
+  FirebaseAuth auth= FirebaseAuth.instance;
   String message = '';
   Color colour = const Color(0xFF7FCEE8);
 
@@ -119,10 +123,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         message = 'Invalid mobile length';
                         colour = Colors.red;
                       });
-                    } else if (myController.text.length == 10) {
+                    } else {
                       setState(() {
                         colour = const Color(0xFF7FCEE8);
                         message = '';
+                        verifyPhoneNumber();
                         //TODO: Add further login functionality
                       });
                     }
@@ -150,4 +155,21 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  void verifyPhoneNumber()
+  {
+      auth.verifyPhoneNumber(phoneNumber: '+918007946267',
+          verificationCompleted: (PhoneAuthCredential credential) async{
+          await  auth.signInWithCredential(credential).timeout(Duration(seconds: 60));
+        print('logged in');
+        },
+          verificationFailed: (FirebaseAuthException exception){
+          print(exception.message);
+          },
+          codeSent:(String verificationId,int? resendToken){
+
+          },
+          codeAutoRetrievalTimeout: (String verificationID){});
+        
+  }
+
 }
