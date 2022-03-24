@@ -1,13 +1,13 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+//import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter/services.dart';
-import 'bottom_nav_bar.dart';
-import 'theme.dart';
+//import 'bottom_nav_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:alt_sms_autofill/alt_sms_autofill.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -17,11 +17,39 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  late int mobileNumber;
   TextEditingController myController = TextEditingController();
-  FirebaseAuth auth= FirebaseAuth.instance;
+  String RSms = '';
+  FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseFirestore inst = FirebaseFirestore.instance;
   String message = '';
   Color colour = const Color(0xFF7FCEE8);
+
+  Future<void> initSmsListener() async {
+    String? commingSms;
+    try {
+      commingSms = await AltSmsAutofill().listenForSms;
+    } on PlatformException {
+      commingSms = 'Failed to get Sms.';
+    }
+    if (!mounted) return;
+    setState(() {
+      RSms = commingSms!;
+
+      print(RSms.substring(0, 6));
+    });
+  }
+
+  @override
+  void initState() {
+    initSmsListener();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    AltSmsAutofill().unregisterListener();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,19 +62,28 @@ class _LoginScreenState extends State<LoginScreen> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 70.0),
-                child: AnimatedTextKit(
-                  repeatForever: true,
-                  animatedTexts: [
-                    TypewriterAnimatedText(
-                      'Scoop',
-                      speed: const Duration(
-                        milliseconds: 80,
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 40.0,
-                        color: Color(0xFF7FCEE8),
-                        fontWeight: FontWeight.bold,
-                      ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Image.asset(
+                      'images/logo.png',
+                      width: 70.0,
+                    ),
+                    AnimatedTextKit(
+                      repeatForever: true,
+                      animatedTexts: [
+                        TypewriterAnimatedText(
+                          'Scoop',
+                          speed: const Duration(
+                            milliseconds: 80,
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 40.0,
+                            color: Color(0xFF7FCEE8),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -124,11 +161,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         colour = Colors.red;
                       });
                     } else {
-                      setState(() {
-                        colour = const Color(0xFF7FCEE8);
-                        message = '';
-                        verifyPhoneNumber();
-                        //TODO: Add further login functionality
+                      inst
+                          .collection('Username')
+                          .doc(myController.text)
+                          .get()
+                          .then((DocumentSnapshot document) {
+                        if (!document.exists) {
+                          setState(() {
+                            message = 'This number is not a part of PICT Org.';
+                          });
+                        } else {
+                          setState(() {
+                            colour = const Color(0xFF7FCEE8);
+                            message = '';
+                            verifyPhoneNumber(myController.text);
+                            initSmsListener();
+
+                            //TODO: Add further login functionality
+                          });
+                        }
                       });
                     }
                   },
@@ -155,21 +206,17 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-  void verifyPhoneNumber()
-  {
-      auth.verifyPhoneNumber(phoneNumber: '+918007946267',
-          verificationCompleted: (PhoneAuthCredential credential) async{
-          await  auth.signInWithCredential(credential).timeout(Duration(seconds: 60));
-        print('logged in');
+
+  void verifyPhoneNumber(String phone) {
+    auth.verifyPhoneNumber(
+        phoneNumber: '+91$phone',
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          UserCredential user = await auth.signInWithCredential(credential);
         },
-          verificationFailed: (FirebaseAuthException exception){
+        verificationFailed: (FirebaseAuthException exception) {
           print(exception.message);
-          },
-          codeSent:(String verificationId,int? resendToken){
-
-          },
-          codeAutoRetrievalTimeout: (String verificationID){});
-        
+        },
+        codeSent: (String verificationId, int? resendToken) {},
+        codeAutoRetrievalTimeout: (String verificationID) {});
   }
-
 }
