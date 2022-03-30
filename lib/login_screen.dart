@@ -7,7 +7,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 //import 'bottom_nav_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:alt_sms_autofill/alt_sms_autofill.dart';
+// import 'package:alt_sms_autofill/alt_sms_autofill.dart';
+import 'package:sms_receiver/sms_receiver.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -17,37 +18,49 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  SmsReceiver? _smsReceiver;
   TextEditingController myController = TextEditingController();
-  String RSms = '';
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore inst = FirebaseFirestore.instance;
   String message = '';
   Color colour = const Color(0xFF7FCEE8);
-
-  Future<void> initSmsListener() async {
-    String? commingSms;
-    try {
-      commingSms = await AltSmsAutofill().listenForSms;
-    } on PlatformException {
-      commingSms = 'Failed to get Sms.';
-    }
-    if (!mounted) return;
-    setState(() {
-      RSms = commingSms!;
-
-      print(RSms.substring(0, 6));
-    });
-  }
+  String? otp;
 
   @override
   void initState() {
-    initSmsListener();
     super.initState();
+    _smsReceiver = SmsReceiver(onSmsReceived, onTimeout: onTimeout);
+    _startListening();
+  }
+
+  void onSmsReceived(String? message) {
+    setState(() {
+      otp = message;
+      print(otp);
+    });
+    // _stopListening();
+  }
+
+  void onTimeout() {
+    setState(() {
+      print("Timed out");
+    });
+  }
+
+  void _startListening() async {
+    if (_smsReceiver == null) return;
+    await _smsReceiver?.startListening();
+    setState(() {});
+  }
+
+  void _stopListening() async {
+    if (_smsReceiver == null) return;
+    await _smsReceiver?.stopListening();
+    setState(() {});
   }
 
   @override
   void dispose() {
-    AltSmsAutofill().unregisterListener();
     super.dispose();
   }
 
@@ -175,7 +188,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             colour = const Color(0xFF7FCEE8);
                             message = '';
                             verifyPhoneNumber(myController.text);
-                            initSmsListener();
 
                             //TODO: Add further login functionality
                           });
@@ -214,9 +226,15 @@ class _LoginScreenState extends State<LoginScreen> {
           UserCredential user = await auth.signInWithCredential(credential);
         },
         verificationFailed: (FirebaseAuthException exception) {
-          print(exception.message);
+          // print(exception.message);
+          print("custom exception");
         },
-        codeSent: (String verificationId, int? resendToken) {},
-        codeAutoRetrievalTimeout: (String verificationID) {});
+        codeSent: (String verificationId, int? resendToken) {
+          print("code sent");
+          _startListening();
+        },
+        codeAutoRetrievalTimeout: (String verificationID) {
+          print("timed out");
+        });
   }
 }
