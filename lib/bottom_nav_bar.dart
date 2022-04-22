@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'screens/calendar_screen.dart';
 import 'package:scoop/components/nav_bar_item.dart';
-//import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'screens/events_screen.dart';
-import 'screens/idcard_screen.dart';
+import 'screens/icard_screen.dart';
 import 'package:scoop/screens/library_screen.dart';
 import 'package:scoop/screens/profile_screen.dart';
 
@@ -23,6 +22,12 @@ class _BNavBarState extends State<BNavBar> {
     const Calendar(),
     const Profile(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

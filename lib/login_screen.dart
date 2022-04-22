@@ -1,14 +1,10 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-//import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-//import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter/services.dart';
-//import 'bottom_nav_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:alt_sms_autofill/alt_sms_autofill.dart';
-import 'package:sms_receiver/sms_receiver.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:scoop/login_screen2.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -18,51 +14,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  SmsReceiver? _smsReceiver;
   TextEditingController myController = TextEditingController();
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore inst = FirebaseFirestore.instance;
   String message = '';
   Color colour = const Color(0xFF7FCEE8);
-  String? otp;
-
-  @override
-  void initState() {
-    super.initState();
-    _smsReceiver = SmsReceiver(onSmsReceived, onTimeout: onTimeout);
-    _startListening();
-  }
-
-  void onSmsReceived(String? message) {
-    setState(() {
-      otp = message;
-      print(otp);
-    });
-    // _stopListening();
-  }
-
-  void onTimeout() {
-    setState(() {
-      print("Timed out");
-    });
-  }
-
-  void _startListening() async {
-    if (_smsReceiver == null) return;
-    await _smsReceiver?.startListening();
-    setState(() {});
-  }
-
-  void _stopListening() async {
-    if (_smsReceiver == null) return;
-    await _smsReceiver?.stopListening();
-    setState(() {});
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
+  bool visibility = false;
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     backgroundColor: MaterialStateProperty.all<Color>(
-                      Color(0xFF7FCEE8),
+                      const Color(0xFF7FCEE8),
                     ),
                   ),
                   onPressed: () {
@@ -178,21 +135,25 @@ class _LoginScreenState extends State<LoginScreen> {
                           .collection('Username')
                           .doc(myController.text)
                           .get()
-                          .then((DocumentSnapshot document) {
-                        if (!document.exists) {
-                          setState(() {
-                            message = 'This number is not a part of PICT Org.';
-                          });
-                        } else {
-                          setState(() {
-                            colour = const Color(0xFF7FCEE8);
-                            message = '';
-                            verifyPhoneNumber(myController.text);
-
-                            //TODO: Add further login functionality
-                          });
-                        }
-                      });
+                          .then(
+                        (DocumentSnapshot document) {
+                          if (!document.exists) {
+                            setState(() {
+                              message =
+                                  'This number is not a part of PICT Org.';
+                            });
+                          } else {
+                            setState(
+                              () {
+                                colour = const Color(0xFF7FCEE8);
+                                message = '';
+                                visibility = true;
+                                verifyPhoneNumber(myController.text);
+                              },
+                            );
+                          }
+                        },
+                      );
                     }
                   },
                   child: Padding(
@@ -201,7 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: const <Widget>[
                         Text(
-                          'Login',
+                          'Get OTP',
                           style: TextStyle(fontSize: 18.0),
                         ),
                         Icon(
@@ -210,6 +171,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
+                ),
+              ),
+              Visibility(
+                visible: visibility,
+                child: const SpinKitFadingCircle(
+                  color: Color(0xFF7FCEE8),
+                  size: 50.0,
                 ),
               ),
             ],
@@ -221,20 +189,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void verifyPhoneNumber(String phone) {
     auth.verifyPhoneNumber(
-        phoneNumber: '+91$phone',
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          UserCredential user = await auth.signInWithCredential(credential);
-        },
-        verificationFailed: (FirebaseAuthException exception) {
-          // print(exception.message);
-          print("custom exception");
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          print("code sent");
-          _startListening();
-        },
-        codeAutoRetrievalTimeout: (String verificationID) {
-          print("timed out");
-        });
+      phoneNumber: '+91$phone',
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        await auth.signInWithCredential(credential);
+      },
+      verificationFailed: (FirebaseAuthException exception) {},
+      codeSent: (String verificationId, int? resendToken) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OTPScreen(
+              verifyId: verificationId,
+            ),
+          ),
+        );
+      },
+      codeAutoRetrievalTimeout: (String verificationID) {},
+      timeout: const Duration(seconds: 0),
+    );
   }
 }
