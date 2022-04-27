@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:pinput/pinput.dart';
 import 'package:scoop/bottom_nav_bar.dart';
 
@@ -83,10 +84,14 @@ class _OTPScreenState extends State<OTPScreen> {
                     );
                     await auth.signInWithCredential(credential).then(
                       (value) {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const BNavBar()));
+                        try {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const BNavBar()));
+                        } catch (err) {
+                          AlertDialog();
+                        }
                       },
                     );
                   },
