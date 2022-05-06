@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../components/event_tile.dart';
+import 'eventDetails_screen.dart';
 
 class Events extends StatefulWidget {
   const Events({Key? key}) : super(key: key);
@@ -44,6 +45,21 @@ class _EventsState extends State<Events> {
       onTap: () {},
       logo: 'images/topcoder_logo.png',
       name: 'TopCoder',
+    ),
+    EventTile(
+      onTap: () {},
+      logo: 'images/atcoder_logo.png',
+      name: 'AtCoder',
+    ),
+    EventTile(
+      onTap: () {},
+      logo: 'images/leetcode_logo.png',
+      name: 'Leetcode',
+    ),
+    EventTile(
+      onTap: () {},
+      logo: 'images/kickstart_logo.jpg',
+      name: 'Kickstart',
     ),
     EventTile(
       onTap: () {},

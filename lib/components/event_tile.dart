@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../screens/eventDetails_screen.dart';
+
 class EventTile extends StatelessWidget {
   const EventTile(
       {Key? key, required this.onTap, required this.logo, required this.name})
@@ -7,10 +9,20 @@ class EventTile extends StatelessWidget {
   final void Function() onTap;
   final String logo;
   final String name;
+
   @override
   Widget build(BuildContext context) {
+    void pushScreen() {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => EventDetails(
+                    name: name,
+                  )));
+    }
+
     return GestureDetector(
-      onTap: onTap,
+      onTap: pushScreen,
       child: Card(
         elevation: 5.0,
         clipBehavior: Clip.antiAlias,
