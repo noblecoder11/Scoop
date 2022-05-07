@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:scoop/login_screen.dart';
+import 'eventForm_screen.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -12,6 +14,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  late final String url1;
   late Map<String, dynamic> data;
   late DocumentSnapshot<Map<String, dynamic>> docs;
   bool visible = true;
@@ -23,6 +26,7 @@ class _ProfileState extends State<Profile> {
   void initState() {
     super.initState();
     getFutureDocData();
+    getUrls();
   }
 
   void getFutureDocData() async {
@@ -33,9 +37,21 @@ class _ProfileState extends State<Profile> {
     if (docs.exists) {
       setState(() {
         data = docs.data()!;
-        visible = false;
       });
     }
+  }
+
+  void getUrls() async {
+    var storage = FirebaseStorage.instance.ref('i-cards');
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    String? phone = auth.currentUser?.phoneNumber;
+    phone = phone?.substring(3);
+    var urla =
+        await storage.child('$phone').child('profile.jpg').getDownloadURL();
+    setState(() {
+      url1 = urla;
+      visible = false;
+    });
   }
 
   String? getPhone() {
@@ -66,7 +82,8 @@ class _ProfileState extends State<Profile> {
                       padding: const EdgeInsets.all(30.0),
                       child: Column(
                         children: [
-                          const CircleAvatar(
+                          CircleAvatar(
+                            backgroundImage: NetworkImage(url1),
                             backgroundColor: Colors.grey,
                             radius: 50.0,
                           ),
@@ -112,6 +129,29 @@ class _ProfileState extends State<Profile> {
                   indent: 20.0,
                   endIndent: 20.0,
                   thickness: 2.0,
+                ),
+                TextButton(
+                  onPressed: () {
+                    // auth.signOut();
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => New_Event()));
+                  },
+                  child: const ListTile(
+                    leading: Icon(
+                      Icons.logout,
+                      color: Colors.black,
+                    ),
+                    title: Text(
+                      'ADD New Event',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                const Divider(
+                  indent: 20.0,
+                  endIndent: 20.0,
+                  thickness: 1.5,
+                  height: 0,
                 ),
                 TextButton(
                   onPressed: () {

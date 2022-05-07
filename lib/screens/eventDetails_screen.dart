@@ -65,6 +65,10 @@ class _EventDetailsState extends State<EventDetails> {
         var contestList = jsonDecode(response.body);
 
         for (int i = 0; i < contestList.length; i++) {
+          if (contestList[i]["name"] == 'Codechef') {
+            String start = contestList[i]["start_time"];
+            print(start);
+          }
           events.add(EventDetailsTile(
             title: contestList[i]["name"],
             startTime: DateTime.parse(contestList[i]["start_time"]).toLocal(),

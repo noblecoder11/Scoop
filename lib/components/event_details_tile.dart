@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:scoop/constants/links.dart';
+import 'package:scoop/constants/kcalendar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class EventDetailsTile extends StatelessWidget {
   EventDetailsTile(
@@ -33,11 +37,17 @@ class EventDetailsTile extends StatelessWidget {
       throw 'Could not launch $url';
     }
   }
-  // final Uri _url = Uri.parse('https://google.com');
 
-  // void _launchUrl() async {
-  //   if (!await launchUrl(_url)) throw 'Could not launch $_url';
-  // }
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseFirestore inst = FirebaseFirestore.instance;
+
+  late Map<String, dynamic> data;
+  late DocumentReference<Map<String, dynamic>> docs;
+
+  String? getPhone() {
+    String? phone = auth.currentUser?.phoneNumber?.substring(3);
+    return phone;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +85,32 @@ class EventDetailsTile extends StatelessWidget {
                 style: TextButton.styleFrom(
                     textStyle: TextStyle(color: const Color(0xFF7FCEE8))),
                 onPressed: () {
+                  if (calendarMap[startTime] != null) {
+                    calendarMap[startTime] = [
+                      Event(
+                          name: title,
+                          start_time: startTime.toString(),
+                          end_time: endTime.toString(),
+                          link: link)
+                    ];
+                    // calendarMap.(startTime: Event(name: title, start_time: startTime.toString(), end_time: endTime.toString(), link: link));
+                  } else {
+                    calendarMap[startTime]?.add(Event(
+                        name: title,
+                        start_time: startTime.toString().substring(0, 16),
+                        end_time: endTime.toString().substring(0, 16),
+                        link: link));
+                  }
+                  inst.collection('Username').doc(getPhone()).update({
+                    'MyEvents.${startTime.toString().substring(0, 19)}': {
+                      'name': title,
+                      'start_time': startTime.toString(),
+                      'end_time': endTime.toString(),
+                      'link': link
+                    }
+                  });
+
+                  print(calendarMap);
                   print('Added to calendar');
                 },
                 child: const Text('ADD TO CALENDAR'),
