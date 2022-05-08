@@ -8,41 +8,37 @@ class Event {
   String? end_time;
   String? link;
 
-  Event(
-      {String? this.name,
-      String? this.start_time,
-      String? this.end_time,
-      String? this.link});
+  Event({this.name, this.start_time, this.end_time, this.link});
 }
 
 Map<DateTime?, List<Event>> calendarMap = {
-  DateTime.parse('20220506'): [
-    Event(
-        name: 'name',
-        start_time: 'now',
-        end_time: 'aftersometime',
-        link: 'idc'),
-    Event(
-        name: 'name2',
-        start_time: 'now',
-        end_time: 'aftersometime',
-        link: 'idc')
-  ],
-  DateTime.parse('20220508'): [
-    Event(
-        name: 'datname',
-        start_time: 'now',
-        end_time: 'aftersometime',
-        link: 'idc'),
-    Event(
-        name: 'datname2',
-        start_time: 'now',
-        end_time: 'aftersometime',
-        link: 'idc'),
-    Event(
-        name: 'datname2',
-        start_time: 'now',
-        end_time: 'aftersometime',
-        link: 'idc')
-  ],
+  // DateTime.parse('20220506'): [
+  //   Event(
+  //       name: 'name',
+  //       start_time: 'now',
+  //       end_time: 'aftersometime',
+  //       link: 'idc'),
+  //   Event(
+  //       name: 'name2',
+  //       start_time: 'now',
+  //       end_time: 'aftersometime',
+  //       link: 'idc')
+  // ],
+  // DateTime.parse('20220508'): [
+  //   Event(
+  //       name: 'datname',
+  //       start_time: 'now',
+  //       end_time: 'aftersometime',
+  //       link: 'idc'),
+  //   Event(
+  //       name: 'datname2',
+  //       start_time: 'now',
+  //       end_time: 'aftersometime',
+  //       link: 'idc'),
+  //   Event(
+  //       name: 'datname2',
+  //       start_time: 'now',
+  //       end_time: 'aftersometime',
+  //       link: 'idc')
+  // ],
 };

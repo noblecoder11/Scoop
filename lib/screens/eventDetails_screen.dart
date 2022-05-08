@@ -1,5 +1,4 @@
 import 'dart:convert';
-// import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:scoop/components/event_details_tile.dart';
@@ -7,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:scoop/constants/links.dart';
 
 class EventDetails extends StatefulWidget {
-  EventDetails({Key? key, required String this.name}) : super(key: key);
+  EventDetails({Key? key, required this.name}) : super(key: key);
   String name;
 
   @override

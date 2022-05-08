@@ -19,6 +19,33 @@ class EventDetailsTile extends StatelessWidget {
   final String title;
   final String link;
 
+  Future<void> _showMyDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Success'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('This event was added to the calendar!!'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Ok'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _launchInBrowser() async {
     Uri url = Uri.parse(link);
     if (!await launchUrl(
@@ -77,13 +104,13 @@ class EventDetailsTile extends StatelessWidget {
             children: [
               TextButton(
                 style: TextButton.styleFrom(
-                    textStyle: TextStyle(color: const Color(0xFF7FCEE8))),
+                    textStyle: const TextStyle(color: Color(0xFF7FCEE8))),
                 onPressed: _launchInBrowser,
                 child: const Text('OPEN'),
               ),
               TextButton(
                 style: TextButton.styleFrom(
-                    textStyle: TextStyle(color: const Color(0xFF7FCEE8))),
+                    textStyle: const TextStyle(color: Color(0xFF7FCEE8))),
                 onPressed: () {
                   if (calendarMap[startTime] != null) {
                     calendarMap[startTime] = [
@@ -102,7 +129,7 @@ class EventDetailsTile extends StatelessWidget {
                         link: link));
                   }
                   inst.collection('Username').doc(getPhone()).update({
-                    'MyEvents.${startTime.toString().substring(0, 19)}': {
+                    'MyEvents.${startTime.toString().substring(0, 10)}': {
                       'name': title,
                       'start_time': startTime.toString(),
                       'end_time': endTime.toString(),
@@ -111,7 +138,7 @@ class EventDetailsTile extends StatelessWidget {
                   });
 
                   print(calendarMap);
-                  print('Added to calendar');
+                  _showMyDialog(context);
                 },
                 child: const Text('ADD TO CALENDAR'),
               ),

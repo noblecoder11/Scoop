@@ -1,8 +1,8 @@
 import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:scoop/screens/eventDetails_screen.dart';
 import 'package:scoop/constants/kcalendar.dart';
 
 class Calendar extends StatefulWidget {
@@ -13,6 +13,9 @@ class Calendar extends StatefulWidget {
 }
 
 class _CalendarState extends State<Calendar> {
+  late Map<String, dynamic> data;
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseFirestore inst = FirebaseFirestore.instance;
   late final ValueNotifier<List<Event>> _selectedEvents;
   CalendarFormat _calendarFormat = CalendarFormat.month;
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode
@@ -30,6 +33,8 @@ class _CalendarState extends State<Calendar> {
   @override
   void initState() {
     super.initState();
+    calendarMap.clear();
+    getFutureDocData();
     _selectedDay = _focusedDay;
     _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
   }
@@ -104,6 +109,49 @@ class _CalendarState extends State<Calendar> {
     }
   }
 
+  String? getPhone() {
+    String? phone = auth.currentUser?.phoneNumber?.substring(3);
+    return phone;
+  }
+
+  void getFutureDocData() async {
+    var documents = await inst.collection('Username').doc(getPhone()).get();
+    if (documents.exists) {
+      setState(() {
+        data = documents.data()!;
+        Map step1 = data['MyEvents'];
+        List keys = step1.keys.toList();
+        for (var i in keys) {
+          DateTime dt = DateTime.parse(i);
+          Map step2 = step1[i];
+          if (calendarMap.containsKey(dt)) {
+            calendarMap[dt]?.add(
+              Event(
+                name: step2['name'],
+                start_time: step2['start_time'],
+                end_time: step2['end_time'],
+                link: step2['link'],
+              ),
+            );
+          } else {
+            calendarMap.putIfAbsent(
+              dt,
+              () => [
+                Event(
+                  name: step2['name'],
+                  start_time: step2['start_time'],
+                  end_time: step2['end_time'],
+                  link: step2['link'],
+                )
+              ],
+            );
+          }
+        }
+      });
+    }
+    // Event().initMap();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,7 +168,7 @@ class _CalendarState extends State<Calendar> {
             rangeSelectionMode: _rangeSelectionMode,
             eventLoader: _getEventsForDay,
             startingDayOfWeek: StartingDayOfWeek.monday,
-            calendarStyle: CalendarStyle(
+            calendarStyle: const CalendarStyle(
               // Use `CalendarStyle` to customize the UI
               outsideDaysVisible: false,
             ),

@@ -18,6 +18,7 @@ class _ProfileState extends State<Profile> {
   late Map<String, dynamic> data;
   late DocumentSnapshot<Map<String, dynamic>> docs;
   bool visible = true;
+  bool notHidden = false;
 
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore inst = FirebaseFirestore.instance;
@@ -37,6 +38,15 @@ class _ProfileState extends State<Profile> {
     if (docs.exists) {
       setState(() {
         data = docs.data()!;
+      });
+    }
+    if (data['role'] == 'admin') {
+      setState(() {
+        notHidden = true;
+      });
+    } else {
+      setState(() {
+        notHidden = false;
       });
     }
   }
@@ -130,28 +140,33 @@ class _ProfileState extends State<Profile> {
                   endIndent: 20.0,
                   thickness: 2.0,
                 ),
-                TextButton(
-                  onPressed: () {
-                    // auth.signOut();
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => New_Event()));
-                  },
-                  child: const ListTile(
-                    leading: Icon(
-                      Icons.logout,
-                      color: Colors.black,
-                    ),
-                    title: Text(
-                      'ADD New Event',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                Visibility(
+                  visible: notHidden,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => New_Event()));
+                    },
+                    child: const ListTile(
+                      leading: Icon(
+                        Icons.logout,
+                        color: Colors.black,
+                      ),
+                      title: Text(
+                        'ADD New Event',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),
-                const Divider(
-                  indent: 20.0,
-                  endIndent: 20.0,
-                  thickness: 1.5,
-                  height: 0,
+                Visibility(
+                  visible: notHidden,
+                  child: const Divider(
+                    indent: 20.0,
+                    endIndent: 20.0,
+                    thickness: 1.5,
+                    height: 0,
+                  ),
                 ),
                 TextButton(
                   onPressed: () {

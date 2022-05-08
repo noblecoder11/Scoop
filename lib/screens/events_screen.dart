@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../components/event_tile.dart';
-import 'eventDetails_screen.dart';
 
 class Events extends StatefulWidget {
   const Events({Key? key}) : super(key: key);
@@ -21,48 +20,39 @@ class _EventsState extends State<Events> {
   bool visible = false;
 
   List<Widget> events = [
-    EventTile(
-      onTap: () {},
+    const EventTile(
       logo: 'images/codeforces_logo.png',
       name: 'Codeforces',
     ),
-    EventTile(
-      onTap: () {},
+    const EventTile(
       logo: 'images/hackerrank_logo.jpg',
       name: 'Hackerrank',
     ),
-    EventTile(
-      onTap: () {},
+    const EventTile(
       logo: 'images/codechef_logo.jpg',
       name: 'Codechef',
     ),
-    EventTile(
-      onTap: () {},
+    const EventTile(
       logo: 'images/kaggle_logo.png',
       name: 'Kaggle',
     ),
-    EventTile(
-      onTap: () {},
+    const EventTile(
       logo: 'images/topcoder_logo.png',
       name: 'TopCoder',
     ),
-    EventTile(
-      onTap: () {},
+    const EventTile(
       logo: 'images/atcoder_logo.png',
       name: 'AtCoder',
     ),
-    EventTile(
-      onTap: () {},
+    const EventTile(
       logo: 'images/leetcode_logo.png',
       name: 'Leetcode',
     ),
-    EventTile(
-      onTap: () {},
+    const EventTile(
       logo: 'images/kickstart_logo.jpg',
       name: 'Kickstart',
     ),
-    EventTile(
-      onTap: () {},
+    const EventTile(
       logo: 'images/hackerearth_logo.png',
       name: 'HackerEarth',
     ),
@@ -94,7 +84,6 @@ class _EventsState extends State<Events> {
         for (var i in data['Clubs']) {
           events.add(
             EventTile(
-              onTap: () {},
               logo: 'images/${i}_logo.png',
               name: '$i',
             ),

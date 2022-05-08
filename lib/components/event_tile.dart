@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-
 import '../screens/eventDetails_screen.dart';
 
 class EventTile extends StatelessWidget {
-  const EventTile(
-      {Key? key, required this.onTap, required this.logo, required this.name})
+  const EventTile({Key? key, required this.logo, required this.name})
       : super(key: key);
-  final void Function() onTap;
   final String logo;
   final String name;
 
