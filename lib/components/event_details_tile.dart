@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:scoop/constants/links.dart';
 import 'package:scoop/constants/kcalendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class EventDetailsTile extends StatelessWidget {
@@ -52,15 +50,6 @@ class EventDetailsTile extends StatelessWidget {
       url,
       mode: LaunchMode.externalApplication,
     )) {
-      throw 'Could not launch $url';
-    }
-  }
-
-  _launchURL() async {
-    Uri url = Uri.parse('https://flutter.dev');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    } else {
       throw 'Could not launch $url';
     }
   }
@@ -128,16 +117,16 @@ class EventDetailsTile extends StatelessWidget {
                         end_time: endTime.toString().substring(0, 16),
                         link: link));
                   }
+
+                  var date = startTime.toString().substring(0, 10);
                   inst.collection('Username').doc(getPhone()).update({
-                    'MyEvents.${startTime.toString().substring(0, 10)}': {
-                      'name': title,
+                    'MyEvents.$date.${title.replaceAll('.', '%2E')}': {
                       'start_time': startTime.toString(),
                       'end_time': endTime.toString(),
                       'link': link
                     }
                   });
 
-                  print(calendarMap);
                   _showMyDialog(context);
                 },
                 child: const Text('ADD TO CALENDAR'),

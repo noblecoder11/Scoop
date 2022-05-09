@@ -1,9 +1,11 @@
 import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:scoop/constants/kcalendar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Calendar extends StatefulWidget {
   const Calendar({Key? key}) : super(key: key);
@@ -25,11 +27,6 @@ class _CalendarState extends State<Calendar> {
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
 
-  // CalendarFormat _calendarFormat = CalendarFormat.month;
-  // DateTime _focusedDay = DateTime.now();
-  // DateTime _selectedDay = DateTime.now();
-  // late final ValueNotifier<List<Event>> _selectedEvents;
-
   @override
   void initState() {
     super.initState();
@@ -37,6 +34,7 @@ class _CalendarState extends State<Calendar> {
     getFutureDocData();
     _selectedDay = _focusedDay;
     _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
+    _onDaySelected(_selectedDay!, _focusedDay);
   }
 
   @override
@@ -50,8 +48,6 @@ class _CalendarState extends State<Calendar> {
       equals: isSameDay,
       hashCode: getHashCode,
     )..addAll(calendarMap);
-    print(calendarEvents);
-    // print([].runtimeType);
     return calendarEvents[day] ?? [];
   }
 
@@ -68,7 +64,6 @@ class _CalendarState extends State<Calendar> {
   }
 
   List<Event> _getEventsForRange(DateTime start, DateTime end) {
-    // Implementation example
     final days = daysInRange(start, end);
 
     return [
@@ -124,32 +119,48 @@ class _CalendarState extends State<Calendar> {
         for (var i in keys) {
           DateTime dt = DateTime.parse(i);
           Map step2 = step1[i];
-          if (calendarMap.containsKey(dt)) {
-            calendarMap[dt]?.add(
-              Event(
-                name: step2['name'],
-                start_time: step2['start_time'],
-                end_time: step2['end_time'],
-                link: step2['link'],
-              ),
-            );
-          } else {
-            calendarMap.putIfAbsent(
-              dt,
-              () => [
+
+          var calendarKey = DateTime.parse(i + ' 00:00:00.000');
+
+          for (var j in step2.keys) {
+            if (calendarMap.containsKey(calendarKey)) {
+              calendarMap[dt]?.add(
                 Event(
-                  name: step2['name'],
-                  start_time: step2['start_time'],
-                  end_time: step2['end_time'],
-                  link: step2['link'],
-                )
-              ],
-            );
+                  name: j.replaceAll('%2E', '.'),
+                  start_time: step2[j]['start_time'],
+                  end_time: step2[j]['end_time'],
+                  link: step2[j]['link'],
+                ),
+              );
+            } else {
+              calendarMap.putIfAbsent(
+                dt,
+                () => [
+                  Event(
+                    name: j.replaceAll('%2E', '.'),
+                    start_time: step2[j]['start_time'],
+                    end_time: step2[j]['end_time'],
+                    link: step2[j]['link'],
+                  )
+                ],
+              );
+            }
           }
         }
       });
     }
     // Event().initMap();
+  }
+
+  // For launching URLs
+  Future<void> _launchInBrowser(String link) async {
+    Uri url = Uri.parse(link);
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw 'Could not launch $url';
+    }
   }
 
   @override
@@ -197,12 +208,13 @@ class _CalendarState extends State<Calendar> {
                         horizontal: 12.0,
                         vertical: 4.0,
                       ),
+                      padding: EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
                         border: Border.all(),
                         borderRadius: BorderRadius.circular(12.0),
                       ),
                       child: ListTile(
-                        onTap: () => print('${value[index].name}'),
+                        onTap: () => _launchInBrowser('${value[index].link}'),
                         title: Text('${value[index].name}'),
                         subtitle: Text(
                             'Start: ${value[index].start_time}\nEnd: ${value[index].end_time}'),
