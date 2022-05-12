@@ -9,6 +9,12 @@ class Event {
   String? link;
 
   Event({this.name, this.start_time, this.end_time, this.link});
+  Event.fromJson(var event) {
+    this.name = event['name'];
+    this.start_time = event['start_time'];
+    this.end_time = event['end_time'];
+    this.link = event['link'];
+  }
 }
 
 Map<DateTime?, List<Event>> calendarMap = {};

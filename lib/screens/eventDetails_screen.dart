@@ -64,16 +64,26 @@ class _EventDetailsState extends State<EventDetails> {
         var contestList = jsonDecode(response.body);
 
         for (int i = 0; i < contestList.length; i++) {
-          if (contestList[i]["name"] == 'Codechef') {
-            String start = contestList[i]["start_time"];
-            print(start);
+          if (widget.name == 'Codechef') {
+            int reverseItr = contestList.length - i - 1;
+            String codechefStartTime =
+                contestList[reverseItr]["start_time"].substring(0, 19);
+            String codechefEndTime =
+                contestList[reverseItr]["end_time"].substring(0, 19);
+            events.add(EventDetailsTile(
+              title: contestList[i]["name"],
+              startTime: DateTime.parse(codechefStartTime).toLocal(),
+              endTime: DateTime.parse(codechefEndTime).toLocal(),
+              link: contestList[i]["url"],
+            ));
+          } else {
+            events.add(EventDetailsTile(
+              title: contestList[i]["name"],
+              startTime: DateTime.parse(contestList[i]["start_time"]).toLocal(),
+              endTime: DateTime.parse(contestList[i]["end_time"]).toLocal(),
+              link: contestList[i]["url"],
+            ));
           }
-          events.add(EventDetailsTile(
-            title: contestList[i]["name"],
-            startTime: DateTime.parse(contestList[i]["start_time"]).toLocal(),
-            endTime: DateTime.parse(contestList[i]["end_time"]).toLocal(),
-            link: contestList[i]["url"],
-          ));
         }
         visible = true;
       });

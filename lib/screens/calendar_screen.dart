@@ -213,11 +213,25 @@ class _CalendarState extends State<Calendar> {
                         border: Border.all(),
                         borderRadius: BorderRadius.circular(12.0),
                       ),
-                      child: ListTile(
-                        onTap: () => _launchInBrowser('${value[index].link}'),
-                        title: Text('${value[index].name}'),
-                        subtitle: Text(
-                            'Start: ${value[index].start_time}\nEnd: ${value[index].end_time}'),
+                      child: Column(
+                        children: [
+                          ListTile(
+                            onTap: () =>
+                                _launchInBrowser('${value[index].link}'),
+                            title: Text('${value[index].name}'),
+                            subtitle: Text(
+                                'Start: ${value[index].start_time}\nEnd: ${value[index].end_time}'),
+                          ),
+                          TextButton(
+                              onPressed: () {
+                                calendarMap[_selectedDay]?.remove(Event(
+                                    name: value[index].name,
+                                    start_time: value[index].start_time,
+                                    end_time: value[index].end_time,
+                                    link: value[index].link));
+                              },
+                              child: Text('Remove'))
+                        ],
                       ),
                     );
                   },
