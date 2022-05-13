@@ -1,16 +1,21 @@
-# scoop
+# Scoop
+## Get Reminded!
 
-A new Flutter project.
+#### Scoop is a flutter application for PICT students.
 
-## Getting Started
+It suggests, informs and reminds you of the events, seminars, meets, contests and much more according to your interest.
 
-This project is a starting point for a Flutter application.
+It also has a *Unique* ID Card, which aims at replacing the physical ID Card.
 
-A few resources to get you started if this is your first Flutter project:
+Do you often forget to return books from library and then have to pay fine? Scoop has a feature for that too! It reminds you to return the borrowed book on time.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+##
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Scoop is currently under developement.
+
+##
+
+### DOWNLOAD NOW:
+#### [Play Store]() 
+#### [Apple Store]()
+#### [Website]()
