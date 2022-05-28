@@ -1,7 +1,6 @@
 import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:scoop/constants/kcalendar.dart';
@@ -14,7 +13,9 @@ class Calendar extends StatefulWidget {
   State<Calendar> createState() => _CalendarState();
 }
 
-class _CalendarState extends State<Calendar> {
+class _CalendarState extends State<Calendar>
+    with AutomaticKeepAliveClientMixin<Calendar> {
+  late Offset _tapDownPosition;
   late Map<String, dynamic> data;
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore inst = FirebaseFirestore.instance;
@@ -26,6 +27,9 @@ class _CalendarState extends State<Calendar> {
   DateTime? _selectedDay;
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -149,7 +153,6 @@ class _CalendarState extends State<Calendar> {
         }
       });
     }
-    // Event().initMap();
   }
 
   // For launching URLs
@@ -203,35 +206,52 @@ class _CalendarState extends State<Calendar> {
                 return ListView.builder(
                   itemCount: value.length,
                   itemBuilder: (context, index) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 12.0,
-                        vertical: 4.0,
-                      ),
-                      padding: EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(),
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: Column(
-                        children: [
-                          ListTile(
-                            onTap: () =>
-                                _launchInBrowser('${value[index].link}'),
-                            title: Text('${value[index].name}'),
-                            subtitle: Text(
-                                'Start: ${value[index].start_time}\nEnd: ${value[index].end_time}'),
-                          ),
-                          TextButton(
-                              onPressed: () {
-                                calendarMap[_selectedDay]?.remove(Event(
-                                    name: value[index].name,
-                                    start_time: value[index].start_time,
-                                    end_time: value[index].end_time,
-                                    link: value[index].link));
+                    return GestureDetector(
+                      onTapDown: (TapDownDetails details) {
+                        _tapDownPosition = details.globalPosition;
+                      },
+                      onLongPress: () {
+                        final RenderObject? overlay =
+                            Overlay.of(context)?.context.findRenderObject();
+                        showMenu(
+                          context: context,
+                          items: <PopupMenuEntry>[
+                            PopupMenuItem(
+                              child: const Text(
+                                'Remove from Calendar',
+                              ),
+                              onTap: () {
+                                //TODO: add code to delete the event and reload this page
                               },
-                              child: Text('Remove'))
-                        ],
+                            ),
+                          ],
+                          position: RelativeRect.fromLTRB(
+                            _tapDownPosition.dx,
+                            _tapDownPosition.dy,
+                            overlay!.semanticBounds.size.width -
+                                _tapDownPosition.dx,
+                            overlay.semanticBounds.size.height -
+                                _tapDownPosition.dy,
+                          ),
+                        );
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 12.0,
+                          vertical: 4.0,
+                        ),
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          border: Border.all(),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        child: ListTile(
+                          onTap: () => _launchInBrowser('${value[index].link}'),
+                          title: Text('${value[index].name}'),
+                          subtitle: Text(
+                            'Start: ${value[index].start_time}\nEnd: ${value[index].end_time}',
+                          ),
+                        ),
                       ),
                     );
                   },

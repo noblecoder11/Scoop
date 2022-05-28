@@ -13,7 +13,8 @@ class Profile extends StatefulWidget {
   _ProfileState createState() => _ProfileState();
 }
 
-class _ProfileState extends State<Profile> {
+class _ProfileState extends State<Profile>
+    with AutomaticKeepAliveClientMixin<Profile> {
   late final String url1;
   late Map<String, dynamic> data;
   late DocumentSnapshot<Map<String, dynamic>> docs;
@@ -22,6 +23,9 @@ class _ProfileState extends State<Profile> {
 
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore inst = FirebaseFirestore.instance;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {

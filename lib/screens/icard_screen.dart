@@ -11,7 +11,7 @@ class IDCardScreen extends StatefulWidget {
 }
 
 class _IDCardScreenState extends State<IDCardScreen>
-    with AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin<IDCardScreen> {
   late final String url1;
   late final String url2;
   bool visible = true;

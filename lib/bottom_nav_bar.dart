@@ -22,10 +22,18 @@ class _BNavBarState extends State<BNavBar> {
     const Calendar(),
     const Profile(),
   ];
+  late final PageController _pageController;
 
   @override
   void initState() {
+    _pageController = PageController(initialPage: selectedPage);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -37,7 +45,15 @@ class _BNavBarState extends State<BNavBar> {
         ),
         backgroundColor: const Color(0xFF7FCEE8),
       ),
-      body: pages[selectedPage],
+      body: PageView(
+        controller: _pageController,
+        children: pages,
+        onPageChanged: (index) {
+          setState(() {
+            selectedPage = index;
+          });
+        },
+      ),
       floatingActionButton: SizedBox(
         height: 60,
         child: FittedBox(
@@ -46,6 +62,7 @@ class _BNavBarState extends State<BNavBar> {
             onPressed: () {
               setState(() {
                 selectedPage = 2;
+                _pageController.jumpToPage(2);
               });
             },
             child: Icon(
@@ -79,6 +96,7 @@ class _BNavBarState extends State<BNavBar> {
                 onPressed: () {
                   setState(() {
                     selectedPage = 0;
+                    _pageController.jumpToPage(0);
                   });
                 },
               ),
@@ -94,6 +112,7 @@ class _BNavBarState extends State<BNavBar> {
                 onPressed: () {
                   setState(() {
                     selectedPage = 1;
+                    _pageController.jumpToPage(1);
                   });
                 },
               ),
@@ -101,6 +120,7 @@ class _BNavBarState extends State<BNavBar> {
                 onTap: () {
                   setState(() {
                     selectedPage = 2;
+                    _pageController.jumpToPage(2);
                   });
                 },
                 child: SizedBox(
@@ -132,6 +152,7 @@ class _BNavBarState extends State<BNavBar> {
                 onPressed: () {
                   setState(() {
                     selectedPage = 3;
+                    _pageController.jumpToPage(3);
                   });
                 },
               ),
@@ -147,6 +168,7 @@ class _BNavBarState extends State<BNavBar> {
                 onPressed: () {
                   setState(() {
                     selectedPage = 4;
+                    _pageController.jumpToPage(4);
                   });
                 },
               ),

@@ -11,7 +11,8 @@ class Events extends StatefulWidget {
   State<Events> createState() => _EventsState();
 }
 
-class _EventsState extends State<Events> {
+class _EventsState extends State<Events>
+    with AutomaticKeepAliveClientMixin<Events> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore inst = FirebaseFirestore.instance;
 
@@ -68,6 +69,9 @@ class _EventsState extends State<Events> {
       height: 20,
     ),
   ];
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
